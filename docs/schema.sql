@@ -1,20 +1,19 @@
 CREATE TABLE `users`
 (
     `id`            INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `uuid`          VARCHAR(36) NOT NULL,
-    `username`      VARCHAR(36) NOT NULL,
+    `uuid`          VARCHAR(36) NOT NULL UNIQUE ,
+    `username`      VARCHAR(36) NOT NULL UNIQUE ,
     `first_name`    VARCHAR(100),
     `last_name`     VARCHAR(100),
-    `email`         VARCHAR(100),
+    `email`         VARCHAR(100) UNIQUE ,
     `password`      VARCHAR(100),
     `password_seed` VARCHAR(100),
     `created_date`  DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `modified_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY `uuid` (`uuid`),
-    KEY             `email` (`email`)
+    `modified_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
+
 
 
 CREATE TABLE `products`

@@ -6,8 +6,6 @@ import (
 	"gautam/server/app/models"
 	"gautam/server/app/resource/query"
 	"gautam/server/app/utils"
-	"time"
-
 	"github.com/phuslu/log"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -52,7 +50,7 @@ func Login(requestData *query.LoginRequest) (*map[string]interface{}, error) {
 		return nil, err
 	}
 
-	expireAfterSeconds := int64(8 * time.Hour * 60 * 60)
+	expireAfterSeconds := int64(36000)
 	token, err := accounts.MakeJWTTokenWithExpiry(requestData.UserName, accounts.IUserRoleTypeRoot, expireAfterSeconds)
 	if err != nil {
 		log.Error().Err(err).Msg("error generating token")

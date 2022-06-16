@@ -15,6 +15,7 @@ func Create(createDate *models.Users) error {
 func FindUserByUsername(username string) (*models.Users, error) {
 	user := new(models.Users)
 	if err := config.ReadDB().
+		Model(&models.Users{}).
 		Where(&models.Users{Username: username}).
 		First(user).Error; err != nil {
 		return nil, err

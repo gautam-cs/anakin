@@ -1,4 +1,4 @@
-# API Server for [API_SERVICE_NAME]
+# API Server
 
 REST API Server in golang.
 
@@ -16,12 +16,6 @@ cd app
 go get -u
 go build
 ```
-
-## Configure
-
-Replace `[API_SERVICE_NAME]` with a service name. Service name should be lowercase with underscrore `[a-z_]` max 50 chars
-
-* example: `go_starter_template`
 
 
 ## Directory [ Refer migration_onboarding repo ]
