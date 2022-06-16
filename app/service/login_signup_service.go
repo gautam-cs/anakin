@@ -2,13 +2,14 @@ package service
 
 import (
 	"gautam/server/app/accounts"
-	"gautam/server/app/config"
+	"gautam/server/app/db/users_repo"
 	"gautam/server/app/models"
 	"gautam/server/app/resource/query"
+	"gautam/server/app/utils"
+	"time"
 
 	"github.com/phuslu/log"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm/clause"
 )
 
 func SignUp(requestData *query.SignUpRequest) error {
@@ -20,6 +21,7 @@ func SignUp(requestData *query.SignUpRequest) error {
 	}
 
 	item := &models.Users{
+		UUID:      utils.UUIDV4(),
 		Username:  requestData.UserName,
 		Password:  string(encoded),
 		Email:     requestData.Email,
@@ -29,41 +31,28 @@ func SignUp(requestData *query.SignUpRequest) error {
 		item.LastName = *requestData.LastName
 	}
 
-	err = config.WriteDB().
-		Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "username"}},
-			DoUpdates: clause.AssignmentColumns([]string{"password"}),
-		}).
-		Create(item).Error
-
-	if err != nil {
-		log.Error().Err(err).Msg("GeneratePassword")
+	if err := users_repo.Create(item); err != nil {
 		return err
 	}
-
 	return nil
 
 }
 
 func Login(requestData *query.LoginRequest) (*map[string]interface{}, error) {
 
-	dbItem := new(models.Users)
-
-	err := config.ReadDB().
-		Where(&models.Users{Username: requestData.UserName}).
-		First(dbItem).Error
+	user, err := users_repo.FindUserByUsername(requestData.UserName)
 
 	if err != nil {
 		log.Error().Msgf("Active campaign login failed for username: %s, password: %s", requestData.UserName, requestData.Password)
 		return nil, err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(dbItem.Password), []byte(requestData.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(requestData.Password)); err != nil {
 		log.Error().Msgf("Active campaign login failed for username: %s, password: %s", requestData.UserName, requestData.Password)
 		return nil, err
 	}
 
-	expireAfterSeconds := int64(86400)
+	expireAfterSeconds := int64(8 * time.Hour * 60 * 60)
 	token, err := accounts.MakeJWTTokenWithExpiry(requestData.UserName, accounts.IUserRoleTypeRoot, expireAfterSeconds)
 	if err != nil {
 		log.Error().Err(err).Msg("error generating token")

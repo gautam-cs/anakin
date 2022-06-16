@@ -1,7 +1,8 @@
 package service
 
 import (
-	"gautam/server/app/config"
+	"gautam/server/app/db/promotions_repo"
+	"gautam/server/app/db/users_repo"
 	"gautam/server/app/models"
 	"gautam/server/app/resource/query"
 	"gautam/server/app/utils"
@@ -9,7 +10,7 @@ import (
 	"time"
 )
 
-func RunPromotions(request *query.PromotionsRequest) error {
+func RunPromotions(user string, request *query.PromotionsRequest) error {
 	isPromotionActive := 0
 
 	if request.StartDate == nil {
@@ -42,10 +43,26 @@ func RunPromotions(request *query.PromotionsRequest) error {
 		promotionObj.EndTime = &endDate
 	}
 
-	if e := config.WriteDB().Create(promotionObj).Error; e != nil {
-		log.Error().Err(e).Msgf("RunPromotions failed for obj : %v", promotionObj)
-		return e
+	if err := promotions_repo.Create(promotionObj); err != nil {
+		return err
 	}
 
+	users, err := users_repo.FindAllUserWithoutUsername(user)
+	if err != nil {
+		return err
+	}
+	go sendPromotionEmails(users)
+
+	return nil
+}
+
+func sendPromotionEmails(users []*models.Users) error {
+	emails := make([]string, 0)
+	for _, item := range users {
+		emails = append(emails, item.Email)
+	}
+	if err := sendEmail("test@gmail.com", "password", emails, "", ""); err != nil {
+		log.Error().Err(err).Msg("sendEmail failed")
+	}
 	return nil
 }

@@ -16,7 +16,7 @@ func ProductsByRetailers(c echo.Context) error {
 		return utils.ErrorResponse(c, http.StatusBadRequest, e)
 	}
 
-	resp, e := service.GetProduct(*request)
+	resp, e := service.GetProduct()
 	if e != nil {
 		log.Error().Err(e).Msgf("service.AddProduct:: Unable to add product to our system")
 		return utils.ErrorResponse(c, http.StatusBadGateway, e)

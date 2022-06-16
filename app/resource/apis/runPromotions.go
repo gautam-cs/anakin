@@ -27,7 +27,7 @@ func RunPromotion(c echo.Context) error {
 		return utils.ErrorResponse(c, http.StatusBadRequest, e)
 	}
 
-	if e := service.RunPromotions(request); e != nil {
+	if e := service.RunPromotions(userInfo.User, request); e != nil {
 		log.Error().Err(e).Msgf("service.AddProduct:: Unable to add product to our system")
 		return utils.ErrorResponse(c, http.StatusBadGateway, e)
 	}
